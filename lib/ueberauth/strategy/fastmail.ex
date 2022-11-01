@@ -91,9 +91,14 @@ defmodule Ueberauth.Strategy.Fastmail do
   def info(conn) do
     case CalDAV.get_user(conn.private.fastmail_token) do
       {:ok, user} ->
+        display_name = user[:display_name]
+
+        {first_name, last_name} = split_name(display_name)
+
         %Info{
           email: user[:email],
-          name: user[:display_name]
+          first_name: first_name,
+          last_name: last_name
         }
 
       {:error, _} ->
@@ -171,5 +176,27 @@ defmodule Ueberauth.Strategy.Fastmail do
       |> String.trim_trailing("=")
 
     {verifier, challenge}
+  end
+
+  # Attempt to split a Fastmail display name into a { first_name, last_name }.
+  # Both of the names may be nil.
+  defp split_name(nil), do: {nil, nil}
+
+  defp split_name(display_name) when is_binary(display_name) do
+    [first_name | remainder] = String.split(display_name, " ")
+
+    last_name =
+      case remainder do
+        [] ->
+          nil
+
+        _ ->
+          Enum.join(remainder, " ")
+      end
+
+    {
+      first_name,
+      last_name
+    }
   end
 end
