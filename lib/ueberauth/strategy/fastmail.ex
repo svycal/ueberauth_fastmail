@@ -88,14 +88,17 @@ defmodule Ueberauth.Strategy.Fastmail do
   @doc """
   Fetches the fields to populate the info section of the `Ueberauth.Auth` struct.
   """
-
   def info(conn) do
-    CalDAV.get_user(conn.private.fastmail_token)
+    case CalDAV.get_user(conn.private.fastmail_token) do
+      {:ok, user} ->
+        %Info{
+          email: user[:email],
+          name: user[:display_name]
+        }
 
-    %Info{
-      email: user["email"],
-      name: user["display_name"]
-    }
+      {:error, _} ->
+        %Info{}
+    end
   end
 
   @doc """
