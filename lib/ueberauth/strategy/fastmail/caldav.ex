@@ -29,10 +29,10 @@ defmodule Ueberauth.Strategy.Fastmail.CalDAV do
 
   # Private helpers
 
-  defp build_xml_client(token) do
+  defp build_xml_client(%OAuth2.AccessToken{access_token: token}) do
     Tesla.client([
       {Tesla.Middleware.BaseUrl, "https://caldav.fastmail.com"},
-      {Tesla.Middleware.BearerAuth, %{token: token}},
+      {Tesla.Middleware.BearerAuth, token: token},
       {Tesla.Middleware.Headers,
        [
          {"content-type", "application/xml; charset=\"utf-8\""},
@@ -50,7 +50,6 @@ defmodule Ueberauth.Strategy.Fastmail.CalDAV do
     body = """
       <d:propfind xmlns:d="DAV:">
         <d:prop>
-          <d:displayname />
           <d:current-user-principal />
         </d:prop>
       </d:propfind>

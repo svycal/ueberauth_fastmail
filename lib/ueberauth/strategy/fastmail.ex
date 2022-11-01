@@ -91,14 +91,17 @@ defmodule Ueberauth.Strategy.Fastmail do
   def info(conn) do
     case CalDAV.get_user(conn.private.fastmail_token) do
       {:ok, user} ->
+        email =
+          case user[:email] do
+            "mailto:" <> e -> e
+            e -> e
+          end
+
         display_name = user[:display_name]
 
-        {first_name, last_name} = split_name(display_name)
-
         %Info{
-          email: user[:email],
-          first_name: first_name,
-          last_name: last_name
+          email: email,
+          name: display_name
         }
 
       {:error, _} ->
@@ -136,6 +139,23 @@ defmodule Ueberauth.Strategy.Fastmail do
 
   defp handle_failure(conn, {:error, %OAuth2.Response{status_code: status_code}}) do
     set_errors!(conn, [error("http_status_#{status_code}", "")])
+  end
+
+  defp handle_failure(
+         conn,
+         {:ok,
+          %OAuth2.Client{
+            token: %OAuth2.AccessToken{
+              other_params: %{
+                "error" => error_type,
+                "error_description" => error_description
+              }
+            }
+          }}
+       ) do
+    set_errors!(conn, [
+      error(error_type, error_description)
+    ])
   end
 
   # Private helpers
@@ -176,27 +196,5 @@ defmodule Ueberauth.Strategy.Fastmail do
       |> String.trim_trailing("=")
 
     {verifier, challenge}
-  end
-
-  # Attempt to split a Fastmail display name into a { first_name, last_name }.
-  # Both of the names may be nil.
-  defp split_name(nil), do: {nil, nil}
-
-  defp split_name(display_name) when is_binary(display_name) do
-    [first_name | remainder] = String.split(display_name, " ")
-
-    last_name =
-      case remainder do
-        [] ->
-          nil
-
-        _ ->
-          Enum.join(remainder, " ")
-      end
-
-    {
-      first_name,
-      last_name
-    }
   end
 end
