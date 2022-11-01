@@ -10,6 +10,7 @@ defmodule Ueberauth.Strategy.Fastmail do
   alias Ueberauth.Auth.Info
   alias Ueberauth.Auth.Credentials
   alias Ueberauth.Auth.Extra
+  alias Ueberauth.Strategy.Fastmail.CalDAV
 
   @doc """
   Handles the initial redirect to the Fastmail authentication page.
@@ -88,19 +89,14 @@ defmodule Ueberauth.Strategy.Fastmail do
   Fetches the fields to populate the info section of the `Ueberauth.Auth` struct.
   """
 
-  # def info(conn) do
-  #   raise "Not implemented"
-  # user = conn.private.stripe_user
+  def info(conn) do
+    CalDAV.get_user(conn.private.fastmail_token)
 
-  # %Info{
-  #   email: user["email"],
-  #   name:
-  #     user
-  #     |> Map.get("settings", %{})
-  #     |> Map.get("dashboard", %{})
-  #     |> Map.get("display_name", nil)
-  # }
-  # end
+    %Info{
+      email: user["email"],
+      name: user["display_name"]
+    }
+  end
 
   @doc """
   Stores the raw information (including the token) obtained from the Fastmail callback.
