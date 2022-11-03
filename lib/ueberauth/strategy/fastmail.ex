@@ -49,6 +49,7 @@ defmodule Ueberauth.Strategy.Fastmail do
       {:ok, %{token: %OAuth2.AccessToken{access_token: "" <> _string} = token} = body} ->
         conn
         |> put_private(:fastmail_token, token)
+        |> fetch_user()
 
       err ->
         handle_failure(conn, err)
@@ -85,10 +86,7 @@ defmodule Ueberauth.Strategy.Fastmail do
     }
   end
 
-  @doc """
-  Fetches the fields to populate the info section of the `Ueberauth.Auth` struct.
-  """
-  def info(conn) do
+  def fetch_user(conn) do
     case CalDAV.get_user(conn.private.fastmail_token) do
       {:ok, user} ->
         email =
@@ -99,14 +97,23 @@ defmodule Ueberauth.Strategy.Fastmail do
 
         display_name = user[:display_name]
 
-        %Info{
-          email: email,
-          name: display_name
-        }
+        conn
+        |> put_private(:fastmail_email, email)
+        |> put_private(:fastmail_name, display_name)
 
       {:error, _} ->
-        %Info{}
+        conn
     end
+  end
+
+  @doc """
+  Fetches the fields to populate the info section of the `Ueberauth.Auth` struct.
+  """
+  def info(conn) do
+    %Info{
+      email: conn.private.fastmail_email,
+      name: conn.private.fastmail_name
+    }
   end
 
   @doc """
