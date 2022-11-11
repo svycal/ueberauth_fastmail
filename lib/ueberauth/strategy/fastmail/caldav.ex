@@ -7,7 +7,7 @@ defmodule Ueberauth.Strategy.Fastmail.CalDAV do
   import SweetXml
 
   @current_user_principal_xpath ~x"//d:multistatus/d:response/d:propstat/d:prop/d:current-user-principal/d:href/text()"s
-  @current_user_email_xpath ~x"//d:multistatus/d:response/d:propstat/d:prop/c:calendar-user-address-set/d:href/text()"s
+  @current_user_email_xpath ~x"//d:multistatus/d:response/d:propstat/d:prop/c:calendar-user-address-set/d:href[position()=last()]/text()"s
   @current_user_displayname_xpath ~x"//d:multistatus/d:response/d:propstat/d:prop/d:displayname/text()"s
 
   @doc """
