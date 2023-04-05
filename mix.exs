@@ -34,6 +34,7 @@ defmodule UeberauthFastmail.MixProject do
       {:oauth2, "~> 1.0 or ~> 2.0"},
       {:ueberauth, "~> 0.7"},
       {:sweet_xml, "~> 0.7.1"},
+      {:saxmerl, "~> 0.1"},
       {:tesla, "~> 1.4"},
       {:credo, "~> 1.6", only: [:dev, :test], runtime: false},
       {:dialyxir, "~> 1.0", only: [:dev, :test], runtime: false},
