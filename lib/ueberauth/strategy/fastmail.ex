@@ -46,7 +46,7 @@ defmodule Ueberauth.Strategy.Fastmail do
     opts = [redirect_uri: callback_url(conn)]
 
     case module.get_token(params, opts) do
-      {:ok, %{token: %OAuth2.AccessToken{access_token: "" <> _string} = token} = body} ->
+      {:ok, %{token: %OAuth2.AccessToken{access_token: "" <> _string} = token}} ->
         conn
         |> put_private(:fastmail_token, token)
         |> fetch_user()
