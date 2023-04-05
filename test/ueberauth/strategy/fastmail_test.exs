@@ -1,4 +1,6 @@
 defmodule Ueberauth.Strategy.FastmailTest do
+  @moduledoc false
+
   use ExUnit.Case, async: true
 
   use Plug.Test
@@ -10,7 +12,7 @@ defmodule Ueberauth.Strategy.FastmailTest do
       authorize_url = "https://fastmailapi.test"
 
       expect(OAuthMock, :authorize_url!, fn params, opts ->
-        assert Keyword.get(params, :scope) == "read_only"
+        assert Keyword.get(params, :scope) == "https://www.fastmail.com/dev/protocol-caldav"
 
         assert opts == [
                  {:redirect_uri, "http://www.example.com/auth/fastmail/callback"}
